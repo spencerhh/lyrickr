@@ -5,6 +5,10 @@ body {
     font-size: 1em;
 }
 
+header, h2, input, button {
+    color: #db0c28;
+}
+
 header, footer {
 	position: absolute;
     left: 0;
@@ -18,14 +22,10 @@ header {
 	font-size: 1.1em;
 }
 
-header h1 {
-	margin-left: 10px;
-}
-
 main {
-    margin: auto;
-    padding: 120px;
     width: 75%;
+    padding: 120px;
+    margin: auto;
 }
 
 h2 {
@@ -35,21 +35,23 @@ h2 {
 article {
     padding-left: 10px;
     padding-right: 10px; 
-    color: #985c3a;
 }
 
-pre, p, input, button {
-    font-family: "Roboto Slab", serif;
+article, .content-child {
+    color: #985c3a;
 }
 
 input, button {
     width: 20%;
     padding: 10px;
-    font-size: .7em;
 }
 
-header, h2, input, button {
-	color: #db0c28;
+pre, input, button {
+    font-family: "Roboto Slab", serif;
+}
+
+input, button, .content-child {
+    font-size: .8em;
 }
 
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
@@ -70,21 +72,16 @@ header, h2, input, button {
 #content {
     display:flex;
     flex-flow: row;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
 .content-child {
-    color: #985c3a;
     max-width: 33%;
-    font-size: .8em;
 }
 
 footer {
     position: relative;
-    font-size: .8em;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    font-size: .85em;
     background-color: #985c3a;
     color: white;
 }

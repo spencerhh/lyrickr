@@ -1,8 +1,3 @@
-// Spencer Hall
-// Updated: 11.21.2018
-//
-// -- your description of what this file does here --
-//
 (function() {
     "use strict";
 
@@ -12,14 +7,17 @@
 
     window.addEventListener("load", initialize);
 
-
+    /**
+     * Adds functionality to the search button and listens for the user hitting
+     * the "enter" key for searches.
+     */
     function initialize() {
         $("submit").addEventListener("click", searchLyrics);
 
         document.getElementById("artist-name")
             .addEventListener("keyup", function(event) {
                 event.preventDefault();
-                if (event.keyCode === 13) {
+                if (event.keyCode === 13) { // Code for the "enter" key
                     document.getElementById("submit").click();
                 }
             });
@@ -31,13 +29,15 @@
                     document.getElementById("submit").click();
                 }
             });
-
     }
 
 
+    /**
+     * Retrieves the desired artist's name and song and makes the appropriate AJAX
+     * request. Also invokes the searchSimilar function.
+     */
     function searchLyrics() {
         searchSimilar();
-
 
         let artistName = $("artist-name").value;
         let songTitle = $("song-title").value;
@@ -45,14 +45,19 @@
 
         fetch(url, {
                 mode: "cors"
-            }) // mode cors (cross-origin request service) for talking with our web services
-            .then(checkStatus) // helper function provide to ensure request is successful or not
-            .then(JSON.parse) // uncomment if response returns JSON format instead of text
-            .then(displayLyrics) // this is reached if checkStatus says good-to-go; you write this function
-            .catch(displayError); // this is reached if error happened down the fetch chain pipeline, 
+            }) 
+            .then(checkStatus) 
+            .then(JSON.parse) 
+            .then(displayLyrics) // Uses the retrieved JSON to display the song lyrics
+            .catch(displayError); // Displays the error message
     }
 
 
+    /**
+     * Displays the song lyrics in the appropriate section. Unhides the other
+     * content sections in case of a previous error message.
+     * @param {JSON} responseData - JSON response from lyrics.ovh
+     */
     function displayLyrics(responseData) {
         let lyrics = responseData.lyrics;
 
@@ -60,24 +65,34 @@
         for (let i = 1; i < contentSections.length; i++) {
             contentSections[i].classList.remove("hidden");
         }
+
         $("lyrics-section").classList.remove("hidden");
         $("lyrics-display").innerHTML = lyrics;
     }
 
 
+    /**
+     * Hides other content sections and displays an error message. Adds an event
+     * listener to the input boxes, which hides the error message.
+     * @param {string} error - error from web service
+     */
     function displayError(error) {
         $("lyrics-section").classList.remove("hidden");
+
         let contentSections = qsa(".content-child");
         for (let i = 1; i < contentSections.length; i++) {
             contentSections[i].classList.add("hidden");
         }
-        $("lyrics-display").innerHTML = "Sorry, I couldn't find your song!";
 
+        $("lyrics-display").innerHTML = "Sorry, I couldn't find your song!";
         $("artist-name").addEventListener("click", hideLyrics);
         $("song-title").addEventListener("click", hideLyrics);
     }
 
 
+    /**
+     * Hides the error message once the user clicks into the input boxes.
+     */
     function hideLyrics() {
         $("lyrics-section").classList.add("hidden");
         $("artist-name").removeEventListener("click", hideLyrics);
@@ -85,9 +100,13 @@
     }
 
 
-
+    /**
+     * Retrieves the artist's name and makes an API call using jQuery, which retrieves data
+     * about the artist and related artists. 
+     */
     function searchSimilar() {
         let artistQuery = $("artist-name").value;
+
         let query = {
             type: "music",
             k: TASTEDIVE_API_KEY,
@@ -102,14 +121,18 @@
         });
     }
 
+
+    /**
+     * Prints the artist's bio and other related artists in the remaining two content
+     * sections.
+     * @param {JSON} data - JSON data from TasteDive API
+     */
     function displaySimilar(data) {
         let artistBio = data.Info[0].wTeaser;
         let artistWiki = data.Info[0].wUrl;
         $("artist-bio").innerHTML = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
 
-        console.log(data.Results);
-        console.log(data.Results[0].Name);
-        console.log(data.Results[0].wUrl);
+        // console.log(data.Results);
 
         for (let i = 0; i < data.Results.length; i++) {
             let relatedArtist = document.createElement("li");
@@ -117,7 +140,6 @@
             $("related-artists").append(relatedArtist);
         }
     }
-
 
 
     /* ------------------------------ Helper Functions  ------------------------------ */

@@ -1,46 +1,36 @@
 (function() {
     /* Need to...
-    * 1. Only display lyrics if TasteDive doesn't have information (e.g. "Lil Baby")
-    *       and clear out old content sections (e.g. "Lil Baby" -> "Drake")
-    * 2. Create actual elements and insert into the content section instead of
-    *       editing the innerHTML (possible solution to #1)
-    * 3. Switch from the lyrics.ovh API to musixmatch
-    * 4. Allow for related artists to be expanded
-    * 5. Overall design updates
-    * 6. Songkick API implementation
-    */
-
-
-
-
-    /*
-    search->retrieve lyrics & retrieve similar->display if one succeeds and error if none->if error, reset on click
-    instead of display, should be retrieval with returned data
+    * 1. Create <a> tags for Wikipedia links
+    * 2. Switch from the lyrics.ovh API to musixmatch
+    * 3. Allow for related artists to be expanded
+    * 4. Overall design updates
+    * 5. Songkick API implementation
     */
 
 
     "use strict";
 
-    //let globalLyricsFail = false;
-
+    // API URLs and keys
     const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";
     const TASTEDIVE_API_URL = "https://tastedive.com/api/similar?callback=?";
     const TASTEDIVE_API_KEY = "324293-infomuse-4AWO4LX1";
 
+
     window.addEventListener("load", initialize);
 
+
     /**
-     * Adds functionality to the search button and listens for the user hitting
-     * the "enter" key for searches.
+     * Invokes data retrieval once the search button is clicked and allows
+     * for the "enter" key to invoke retrieval.
      */
     function initialize() {
-        $("submit").addEventListener("click", retrieveDataFromRequest);
+        $("search").addEventListener("click", retrieveDataFromRequest);
 
         document.getElementById("artist-name")
             .addEventListener("keyup", function(event) {
                 event.preventDefault();
                 if (event.keyCode === 13) { // Code for the "enter" key
-                    document.getElementById("submit").click();
+                    document.getElementById("search").click();
                 }
             });
 
@@ -48,29 +38,30 @@
             .addEventListener("keyup", function(event) {
                 event.preventDefault();
                 if (event.keyCode === 13) {
-                    document.getElementById("submit").click();
+                    document.getElementById("search").click();
                 }
             });
     }
 
 
+    /**
+     * Clears out any previous content and initiates the functions for data retrieval.
+     * Then displays the retrieved data or produces an error message (only if all
+     * retrievals fail).
+     */
     function retrieveDataFromRequest() {
-        // Kills off all previous children
-        let contentChildren = qsa("content-child");
+        // Clears out previous content
+        let contentChildren = qsa(".content-child");
         for(let i = 0; i < contentChildren.length; i++) {
-            contentChildren[i].remove();
+            document.remove(contentChildren[i]);
         }
 
         let artistName = $("artist-name").value;
         let songTitle = $("song-title").value;
 
-
-
-
-        // lyrics-> false || pre element
+        // If the retrieval fails, these variables will contain a value of "false"
         let lyricsData = retrieveLyrics(artistName, songTitle); // Uses the lyrics.ovh API
-        let tasteDiveData = retireveTasteDive(artistName); // Uses the TasteDive API
-
+        let tasteDiveData = retrieveTasteDive(artistName); // Uses the TasteDive API
 
         if(!lyricsData && !tasteDiveData) {
             handleError();
@@ -84,76 +75,79 @@
         }
     }
 
+
+    /**
+     * Displays an error message for the user if all retrievals fail and hides
+     * the error message if the user clicks back into the input boxes.
+     */
     function handleError() {
         $("content-section").classList.remove("hidden");
-        $("content-header").innerHTML = "Sorry!";
+        $("content-header").innerHTML = "sorry!";
+
+        let errorDiv = document.createElement("div");
         let errorMessage = document.createElement("p");
-        errorMessage.id = "error-message";
-        errorMessage.innerHTML = "Unfortunately, we could not find any data for your request. Check your search and try again!";
-        $("content-container").append(errorMessage);
+        errorMessage.innerHTML = "Unfortunately, we could not find any information for your request. Check your search and try again!";
+        errorDiv.append(errorMessage);
+        $("content-container").append(errorDiv);
 
         $("artist-name").addEventListener("click", hideContentSection);
         $("song-title").addEventListener("click", hideContentSection);
-
     }
 
+
+    /**
+     * Resets the content section after an error has occurred.
+     */
     function hideContentSection() {
         $("content-section").classList.add("hidden");
         $("content-header").innerHTML = "lyrics, bio, & related artists";
-        document.remove("error-message"); // possibly redundant due to killing all children above
 
         $("artist-name").removeEventListener("click", hideContentSection);
         $("song-title").removeEventListener("click", hideContentSection);
     }
 
 
-
-
     /**
-     * Retrieves the desired artist's name and song and makes the appropriate AJAX
-     * request. Also invokes the searchSimilar function.
+     * Makes an AJAX call using the artist's name and song title.
+     * @param {string} artistName - artist name from the user
+     * @param {string} songTitle - song title from the user
+     * @returns {boolean} false - if the retrieval fails
+     * @returns {el} lyrics - lyrics data if the retrieval succeeds
      */
     function retrieveLyrics(artistName, songTitle) {
-        let url = LYRIC_API_URL + artistName + "/" + songTitle; // if no params needed in request url
+        let url = LYRIC_API_URL + artistName + "/" + songTitle; 
 
         fetch(url, {
                 mode: "cors"
             }) 
             .then(checkStatus) 
             .then(JSON.parse) 
-            .then(returnLyrics) // Uses the retrieved JSON to display the song lyrics
+            .then(return returnLyrics) // Returns the lyrics to the main function
             .catch(return false); // Returns false to the main function
     }
 
+
     /**
-     * Displays the song lyrics in the appropriate section. Unhides the other
-     * content sections in case of a previous error message.
+     * Retrieves the lyrics and returns them in a <pre> element.
      * @param {JSON} responseData - JSON response from lyrics.ovh
+     * @return {el} lyrics - JSON response converted into a <pre> element
      */
     function returnLyrics(responseData) {
         let lyricsData = responseData.lyrics;
-
-        /*let contentSections = qsa(".content-child");
-        for (let i = 1; i < contentSections.length; i++) {
-            contentSections[i].classList.remove("hidden");
-        }*/
-
-        // $("content-section").classList.remove("hidden");
-
-
-        // create a pre element and append it to the content section
         let lyrics = document.createElement("pre");
         lyrics.classList.add("content-child");
         lyrics.innerHTML = lyricsData;
-        
-
         return lyrics;
     }
 
 
     /**
-     * Retrieves the artist's name and makes an API call using jQuery, which retrieves data
-     * about the artist and related artists. 
+     * Uses jQuery to request data about the user's specified artist. It returns false
+     * to the main function if the request fails and returns the desired data if it
+     * succeeds.
+     * @param {string} artistName - artist name from the user
+     * @return {boolean} false - if the retrieval fails
+     * @return {object[]} tasteDiveData - TasteDive data if the retrieval succeeds
      */
     function retrieveTasteDive(artistName) {
         let query = {
@@ -188,6 +182,7 @@
             let artistBio = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
             let artistBioDiv = document.createElement("div");
             artistBioDiv.id = "artist-bio";
+            artistBioDiv.classList.add("content-child");
             let artistBioP = document.createElement("p");
             artistBioP.innerHTML = artistBio;
             artistBioDiv.append(artistBioP);
@@ -205,14 +200,23 @@
     }
 
 
-
+    /**
+     * Displays the song lyrics in the appropriate section. Unhides the other
+     * content sections in case of a previous error message.
+     * @param {JSON} responseData - JSON response from lyrics.ovh
+     */
     function displayTasteDiveData(data) {
+        // data is an array where [0] is the artist bio and [1-10] are related artists
+        $("content-container").append(data[0]);
+        let relatedArtistsSection = document.createElement("div");
+        let relatedArtistsList = document.createElement("ul");
+        relatedArtistsSection.append(relatedArtistsList);
+        $("content-container").append(relatedArtistsSection);
 
+        for (let i = 1; i < data.length; i++) {
+            $("content-container").append(data[i]);
+        }
     }
-
-
-
-
 
 
     /* ------------------------------ Helper Functions  ------------------------------ */

@@ -85,6 +85,7 @@
         $("content-header").innerHTML = "sorry!";
 
         let errorDiv = document.createElement("div");
+        errorDiv.classList.add("content-child");
         let errorMessage = document.createElement("p");
         errorMessage.innerHTML = "Unfortunately, we could not find any information for your request. Check your search and try again!";
         errorDiv.append(errorMessage);
@@ -170,52 +171,52 @@
 
 
     /**
-     * Prints the artist's bio and other related artists in the remaining two content
-     * sections.
+     * Creates an object of elements ready to be appending to the document using the 
+     * data returned from the TasteDive API.
      * @param {JSON} data - JSON data from TasteDive API
+     * @return {object[]} tasteDiveData - object containing elements created with data
      */
     function returnTasteDive(data) {
         let tasteDiveData = {};
 
-            let artistBio = data.Info[0].wTeaser;
-            let artistWiki = data.Info[0].wUrl;
-            let artistBio = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
-            let artistBioDiv = document.createElement("div");
-            artistBioDiv.id = "artist-bio";
-            artistBioDiv.classList.add("content-child");
-            let artistBioP = document.createElement("p");
-            artistBioP.innerHTML = artistBio;
-            artistBioDiv.append(artistBioP);
-            tasteDiveData[0] = artistBioDiv;
+        let artistBio = data.Info[0].wTeaser;
+        let artistWiki = data.Info[0].wUrl;
+        let artistBio = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
 
+        let artistBioP = document.createElement("p");
+        artistBioP.innerHTML = artistBio;
+        let artistBioDiv = document.createElement("div");
+        artistBioDiv.classList.add("content-child");
+        artistBioDiv.append(artistBioP);
+        tasteDiveData[0] = artistBioDiv;
 
-            for (let i = 0; i < data.Results.length; i++) {
-                let relatedArtist = document.createElement("li");
-                relatedArtist.innerHTML = data.Results[i].Name + " (" + data.Results[i].wUrl + ")";
-                tasteDiveData[i+1] = relatedArtist;
-            }
-
-            return tasteDiveData;
+        // Stores individual <li> elements in the rest of the tasteDiveData object
+        for (let i = 0; i < data.Results.length; i++) {
+            let relatedArtist = document.createElement("li");
+            relatedArtist.innerHTML = data.Results[i].Name + " (" + data.Results[i].wUrl + ")";
+            tasteDiveData[i+1] = relatedArtist;
         }
+
+        return tasteDiveData;
     }
 
 
     /**
-     * Displays the song lyrics in the appropriate section. Unhides the other
-     * content sections in case of a previous error message.
-     * @param {JSON} responseData - JSON response from lyrics.ovh
+     * Appends content-container with the elements containg the TasteDive data.
+     * @param {object[]} data - object full of elements with TasteDive data
      */
     function displayTasteDiveData(data) {
-        // data is an array where [0] is the artist bio and [1-10] are related artists
-        $("content-container").append(data[0]);
+        $("content-container").append(data[0]); // Artist's bio
         let relatedArtistsSection = document.createElement("div");
+        relatedArtistsSection.classList.add("content-child");
+
         let relatedArtistsList = document.createElement("ul");
+        for (let i = 1; i < data.length; i++) {
+            relatedArtistsList.append(data[i]);
+        }
+
         relatedArtistsSection.append(relatedArtistsList);
         $("content-container").append(relatedArtistsSection);
-
-        for (let i = 1; i < data.length; i++) {
-            $("content-container").append(data[i]);
-        }
     }
 
 

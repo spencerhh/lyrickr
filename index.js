@@ -57,7 +57,7 @@
         let lyrics = responseData.lyrics;
 
         let contentSections = qsa(".content-child");
-        for(let i = 1; i < contentSections.length; i++) {
+        for (let i = 1; i < contentSections.length; i++) {
             contentSections[i].classList.remove("hidden");
         }
         $("lyrics-section").classList.remove("hidden");
@@ -68,7 +68,7 @@
     function displayError(error) {
         $("lyrics-section").classList.remove("hidden");
         let contentSections = qsa(".content-child");
-        for(let i = 1; i < contentSections.length; i++) {
+        for (let i = 1; i < contentSections.length; i++) {
             contentSections[i].classList.add("hidden");
         }
         $("lyrics-display").innerHTML = "Sorry, I couldn't find your song!";
@@ -92,7 +92,7 @@
             type: "music",
             k: TASTEDIVE_API_KEY,
             q: artistQuery,
-            limit: 10,                
+            limit: 10,
             info: 1
         };
 
@@ -106,7 +106,7 @@
         let artistBio = data.Info[0].wTeaser;
         let artistWiki = data.Info[0].wUrl;
         $("artist-bio").innerHTML = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
-        
+
         console.log(data.Results);
         console.log(data.Results[0].Name);
         console.log(data.Results[0].wUrl);

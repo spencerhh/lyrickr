@@ -1,6 +1,7 @@
 (function() {
     /* Need to...
     * 1. Only display lyrics if TasteDive doesn't have information (e.g. "Lil Baby")
+    *       and clear out old content sections (e.g. "Lil Baby" -> "Drake")
     * 2. Create actual elements and insert into the content section instead of
     *       editing the innerHTML (possible solution to #1)
     * 3. Switch from the lyrics.ovh API to musixmatch
@@ -10,7 +11,17 @@
     */
 
 
+
+
+    /*
+    search->retrieve lyrics & retrieve similar->display if one succeeds and error if none->if error, reset on click
+    instead of display, should be retrieval with returned data
+    */
+
+
     "use strict";
+
+    //let globalLyricsFail = false;
 
     const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";
     const TASTEDIVE_API_URL = "https://tastedive.com/api/similar?callback=?";
@@ -23,7 +34,7 @@
      * the "enter" key for searches.
      */
     function initialize() {
-        $("submit").addEventListener("click", searchLyrics);
+        $("submit").addEventListener("click", retrieveDataFromRequest);
 
         document.getElementById("artist-name")
             .addEventListener("keyup", function(event) {
@@ -43,15 +54,66 @@
     }
 
 
+    function retrieveDataFromRequest() {
+        // Kills off all previous children
+        let contentChildren = qsa("content-child");
+        for(let i = 0; i < contentChildren.length; i++) {
+            contentChildren[i].remove();
+        }
+
+        let artistName = $("artist-name").value;
+        let songTitle = $("song-title").value;
+
+
+
+
+        // lyrics-> false || pre element
+        let lyricsData = retrieveLyrics(artistName, songTitle); // Uses the lyrics.ovh API
+        let tasteDiveData = retireveTasteDive(artistName); // Uses the TasteDive API
+
+
+        if(!lyricsData && !tasteDiveData) {
+            handleError();
+        } else {
+            $("content-section").classList.remove("hidden");
+            if(!lyricsData) {
+                $("content-container").append(lyricsData);
+            } else if(!tasteDiveData) {
+                displayTasteDiveData(tasteDiveData);
+            }
+        }
+    }
+
+    function handleError() {
+        $("content-section").classList.remove("hidden");
+        $("content-header").innerHTML = "Sorry!";
+        let errorMessage = document.createElement("p");
+        errorMessage.id = "error-message";
+        errorMessage.innerHTML = "Unfortunately, we could not find any data for your request. Check your search and try again!";
+        $("content-container").append(errorMessage);
+
+        $("artist-name").addEventListener("click", hideContentSection);
+        $("song-title").addEventListener("click", hideContentSection);
+
+    }
+
+    function hideContentSection() {
+        $("content-section").classList.add("hidden");
+        $("content-header").innerHTML = "lyrics, bio, & related artists";
+        document.remove("error-message"); // possibly redundant due to killing all children above
+
+        $("artist-name").removeEventListener("click", hideContentSection);
+        $("song-title").removeEventListener("click", hideContentSection);
+    }
+
+
+
+
     /**
      * Retrieves the desired artist's name and song and makes the appropriate AJAX
      * request. Also invokes the searchSimilar function.
      */
-    function searchLyrics() {
-        searchSimilar();
-
-        let artistName = $("artist-name").value;
-        let songTitle = $("song-title").value;
+    function retrieveLyrics(artistName, songTitle) {
         let url = LYRIC_API_URL + artistName + "/" + songTitle; // if no params needed in request url
 
         fetch(url, {
@@ -59,55 +121,33 @@
             }) 
             .then(checkStatus) 
             .then(JSON.parse) 
-            .then(displayLyrics) // Uses the retrieved JSON to display the song lyrics
-            .catch(displayError); // Displays the error message
+            .then(returnLyrics) // Uses the retrieved JSON to display the song lyrics
+            .catch(return false); // Returns false to the main function
     }
-
 
     /**
      * Displays the song lyrics in the appropriate section. Unhides the other
      * content sections in case of a previous error message.
      * @param {JSON} responseData - JSON response from lyrics.ovh
      */
-    function displayLyrics(responseData) {
-        let lyrics = responseData.lyrics;
+    function returnLyrics(responseData) {
+        let lyricsData = responseData.lyrics;
 
-        let contentSections = qsa(".content-child");
+        /*let contentSections = qsa(".content-child");
         for (let i = 1; i < contentSections.length; i++) {
             contentSections[i].classList.remove("hidden");
-        }
+        }*/
 
-        $("lyrics-section").classList.remove("hidden");
-        $("lyrics-display").innerHTML = lyrics;
-    }
+        // $("content-section").classList.remove("hidden");
 
 
-    /**
-     * Hides other content sections and displays an error message. Adds an event
-     * listener to the input boxes, which hides the error message.
-     * @param {string} error - error from web service
-     */
-    function displayError(error) {
-        $("lyrics-section").classList.remove("hidden");
+        // create a pre element and append it to the content section
+        let lyrics = document.createElement("pre");
+        lyrics.classList.add("content-child");
+        lyrics.innerHTML = lyricsData;
+        
 
-        let contentSections = qsa(".content-child");
-        for (let i = 1; i < contentSections.length; i++) {
-            contentSections[i].classList.add("hidden");
-        }
-
-        $("lyrics-display").innerHTML = "Sorry, I couldn't find your song!";
-        $("artist-name").addEventListener("click", hideLyrics);
-        $("song-title").addEventListener("click", hideLyrics);
-    }
-
-
-    /**
-     * Hides the error message once the user clicks into the input boxes.
-     */
-    function hideLyrics() {
-        $("lyrics-section").classList.add("hidden");
-        $("artist-name").removeEventListener("click", hideLyrics);
-        $("song-title").removeEventListener("click", hideLyrics);
+        return lyrics;
     }
 
 
@@ -115,20 +155,22 @@
      * Retrieves the artist's name and makes an API call using jQuery, which retrieves data
      * about the artist and related artists. 
      */
-    function searchSimilar() {
-        let artistQuery = $("artist-name").value;
-
+    function retrieveTasteDive(artistName) {
         let query = {
             type: "music",
             k: TASTEDIVE_API_KEY,
-            q: artistQuery,
+            q: artistName,
             limit: 10,
             info: 1
         };
 
         jQuery.getJSON(TASTEDIVE_API_URL, query, function(data) {
             let result = data.Similar;
-            displaySimilar(result);
+            if(result == undefined) {
+                return false;
+            } else {
+                return returnTasteDive(result);
+            }
         });
     }
 
@@ -138,19 +180,39 @@
      * sections.
      * @param {JSON} data - JSON data from TasteDive API
      */
-    function displaySimilar(data) {
-        let artistBio = data.Info[0].wTeaser;
-        let artistWiki = data.Info[0].wUrl;
-        $("artist-bio").innerHTML = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
+    function returnTasteDive(data) {
+        let tasteDiveData = {};
 
-        // console.log(data.Results);
+            let artistBio = data.Info[0].wTeaser;
+            let artistWiki = data.Info[0].wUrl;
+            let artistBio = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
+            let artistBioDiv = document.createElement("div");
+            artistBioDiv.id = "artist-bio";
+            let artistBioP = document.createElement("p");
+            artistBioP.innerHTML = artistBio;
+            artistBioDiv.append(artistBioP);
+            tasteDiveData[0] = artistBioDiv;
 
-        for (let i = 0; i < data.Results.length; i++) {
-            let relatedArtist = document.createElement("li");
-            relatedArtist.innerHTML = data.Results[i].Name + " (" + data.Results[i].wUrl + ")";
-            $("related-artists").append(relatedArtist);
+
+            for (let i = 0; i < data.Results.length; i++) {
+                let relatedArtist = document.createElement("li");
+                relatedArtist.innerHTML = data.Results[i].Name + " (" + data.Results[i].wUrl + ")";
+                tasteDiveData[i+1] = relatedArtist;
+            }
+
+            return tasteDiveData;
         }
     }
+
+
+
+    function displayTasteDiveData(data) {
+
+    }
+
+
+
+
 
 
     /* ------------------------------ Helper Functions  ------------------------------ */

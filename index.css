@@ -69,7 +69,7 @@ input, button, .content-child {
     opacity: .5;
 }
 
-#content {
+#content-container {
     display:flex;
     flex-flow: row;
     justify-content: space-around;

@@ -1,4 +1,15 @@
 (function() {
+    /* Need to...
+    * 1. Only display lyrics if TasteDive doesn't have information (e.g. "Lil Baby")
+    * 2. Create actual elements and insert into the content section instead of
+    *       editing the innerHTML (possible solution to #1)
+    * 3. Switch from the lyrics.ovh API to musixmatch
+    * 4. Allow for related artists to be expanded
+    * 5. Overall design updates
+    * 6. Songkick API implementation
+    */
+
+
     "use strict";
 
     const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";

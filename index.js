@@ -1,12 +1,11 @@
 (function() {
     /* Need to...
-    * 1. Create <a> tags for Wikipedia links
-    * 2. Switch from the lyrics.ovh API to musixmatch
-    * 3. Allow for related artists to be expanded
-    * 4. Overall design updates
-    * 5. Songkick API implementation
-    */
-
+     * 1. Create <a> tags for Wikipedia links
+     * 2. Switch from the lyrics.ovh API to musixmatch
+     * 3. Allow for related artists to be expanded
+     * 4. Overall design updates
+     * 5. Songkick API implementation
+     */
 
     "use strict";
 
@@ -16,7 +15,6 @@
     const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";
     const TASTEDIVE_API_URL = "https://tastedive.com/api/similar?callback=?";
     const TASTEDIVE_API_KEY = "324293-infomuse-4AWO4LX1";
-
 
     window.addEventListener("load", initialize);
 
@@ -54,7 +52,7 @@
     function retrieveDataFromRequest() {
         // Clears out previous content
         let contentChildren = qsa(".content-child");
-        for(let i = 0; i < contentChildren.length; i++) {
+        for (let i = 0; i < contentChildren.length; i++) {
             contentChildren[i].remove();
         }
 
@@ -63,24 +61,6 @@
 
         // If the retrieval fails, these variables will contain a value of "false"
         retrieveLyrics(artistName, songTitle); // Uses the lyrics.ovh API
-        retrieveTasteDive(artistName); // Uses the TasteDive API
-
-
-
-        //setTimeout(function(){ 
-
-
-        /*if(!lyricsData && !tasteDiveData) {
-            handleError();
-        } else {
-            $("content-section").classList.remove("hidden");
-            if(!lyricsData) {
-                $("content-container").append(lyricsData);
-            } else if(!tasteDiveData) {
-                displayTasteDiveData(tasteDiveData);
-            }
-        }
-    }, 5000);*/
     }
 
 
@@ -124,13 +104,13 @@
      * @returns {el} lyrics - lyrics data if the retrieval succeeds
      */
     function retrieveLyrics(artistName, songTitle) {
-        let url = LYRIC_API_URL + artistName + "/" + songTitle; 
+        let url = LYRIC_API_URL + artistName + "/" + songTitle;
 
         fetch(url, {
                 mode: "cors"
-            }) 
-            .then(checkStatus) 
-            .then(JSON.parse) 
+            })
+            .then(checkStatus)
+            .then(JSON.parse)
             .then(returnLyrics) // Returns the lyrics to the main function
             .catch(handleLyricError); // Returns false to the main function
     }
@@ -150,7 +130,7 @@
 
         $("content-section").classList.remove("hidden");
         $("content-container").append(lyrics);
-        retrieveTasteDive($("").value); // Uses the TasteDive API
+        retrieveTasteDive($("artist-name").value); // Uses the TasteDive API
     }
 
 
@@ -160,7 +140,7 @@
      */
     function handleLyricError() {
         lyricsSuccess = false;
-        retrieveTasteDive(artistName, $("").value); // Uses the TasteDive API
+        retrieveTasteDive($("artist-name").value); // Uses the TasteDive API
     }
 
 
@@ -183,8 +163,10 @@
 
         jQuery.getJSON(TASTEDIVE_API_URL, query, function(data) {
             let result = data.Similar;
-            if(result.Info[0].Type == "unknown") {
-                alert("td fail");
+            if (result.Info[0].Type == "unknown") {
+                if (lyricsSuccess == false) {
+                    handleError();
+                }
             } else {
                 returnTasteDive(result);
             }
@@ -216,7 +198,7 @@
         for (let i = 0; i < data.Results.length; i++) {
             let relatedArtist = document.createElement("li");
             relatedArtist.innerHTML = data.Results[i].Name + " (" + data.Results[i].wUrl + ")";
-            tasteDiveData[i+1] = relatedArtist;
+            tasteDiveData[i + 1] = relatedArtist;
         }
 
         displayTasteDiveData(tasteDiveData);

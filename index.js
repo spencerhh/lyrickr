@@ -10,6 +10,8 @@
 
     "use strict";
 
+    let lyricsSuccess = true;
+
     // API URLs and keys
     const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";
     const TASTEDIVE_API_URL = "https://tastedive.com/api/similar?callback=?";
@@ -53,17 +55,22 @@
         // Clears out previous content
         let contentChildren = qsa(".content-child");
         for(let i = 0; i < contentChildren.length; i++) {
-            document.remove(contentChildren[i]);
+            contentChildren[i].remove();
         }
 
         let artistName = $("artist-name").value;
         let songTitle = $("song-title").value;
 
         // If the retrieval fails, these variables will contain a value of "false"
-        let lyricsData = retrieveLyrics(artistName, songTitle); // Uses the lyrics.ovh API
-        let tasteDiveData = retrieveTasteDive(artistName); // Uses the TasteDive API
+        retrieveLyrics(artistName, songTitle); // Uses the lyrics.ovh API
+        retrieveTasteDive(artistName); // Uses the TasteDive API
 
-        if(!lyricsData && !tasteDiveData) {
+
+
+        //setTimeout(function(){ 
+
+
+        /*if(!lyricsData && !tasteDiveData) {
             handleError();
         } else {
             $("content-section").classList.remove("hidden");
@@ -73,6 +80,7 @@
                 displayTasteDiveData(tasteDiveData);
             }
         }
+    }, 5000);*/
     }
 
 
@@ -123,8 +131,8 @@
             }) 
             .then(checkStatus) 
             .then(JSON.parse) 
-            .then(return returnLyrics) // Returns the lyrics to the main function
-            .catch(return false); // Returns false to the main function
+            .then(returnLyrics) // Returns the lyrics to the main function
+            .catch(handleLyricError); // Returns false to the main function
     }
 
 
@@ -134,11 +142,25 @@
      * @return {el} lyrics - JSON response converted into a <pre> element
      */
     function returnLyrics(responseData) {
+        lyricsSuccess = true;
         let lyricsData = responseData.lyrics;
         let lyrics = document.createElement("pre");
         lyrics.classList.add("content-child");
         lyrics.innerHTML = lyricsData;
-        return lyrics;
+
+        $("content-section").classList.remove("hidden");
+        $("content-container").append(lyrics);
+        retrieveTasteDive($("").value); // Uses the TasteDive API
+    }
+
+
+    /**
+     * Returns false to the main function.
+     * @return {boolean} false - returns false to the main function if retrieval fails
+     */
+    function handleLyricError() {
+        lyricsSuccess = false;
+        retrieveTasteDive(artistName, $("").value); // Uses the TasteDive API
     }
 
 
@@ -161,10 +183,10 @@
 
         jQuery.getJSON(TASTEDIVE_API_URL, query, function(data) {
             let result = data.Similar;
-            if(result == undefined) {
-                return false;
+            if(result.Info[0].Type == "unknown") {
+                alert("td fail");
             } else {
-                return returnTasteDive(result);
+                returnTasteDive(result);
             }
         });
     }
@@ -181,7 +203,7 @@
 
         let artistBio = data.Info[0].wTeaser;
         let artistWiki = data.Info[0].wUrl;
-        let artistBio = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
+        artistBio = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
 
         let artistBioP = document.createElement("p");
         artistBioP.innerHTML = artistBio;
@@ -197,7 +219,7 @@
             tasteDiveData[i+1] = relatedArtist;
         }
 
-        return tasteDiveData;
+        displayTasteDiveData(tasteDiveData);
     }
 
 
@@ -209,9 +231,8 @@
         $("content-container").append(data[0]); // Artist's bio
         let relatedArtistsSection = document.createElement("div");
         relatedArtistsSection.classList.add("content-child");
-
         let relatedArtistsList = document.createElement("ul");
-        for (let i = 1; i < data.length; i++) {
+        for (let i = 1; i < 11; i++) {
             relatedArtistsList.append(data[i]);
         }
 

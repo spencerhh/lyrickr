@@ -52,9 +52,9 @@
     function retrieveDataFromRequest() {
         // Clears out previous content
         let contentChildren = qsa(".content-child");
-        for (let i = 0; i < contentChildren.length; i++) {
-            contentChildren[i].remove();
-        }
+        contentChildren.forEach(function(child) {
+            child.remove();
+        });
 
         let artistName = $("artist-name").value;
         let songTitle = $("song-title").value;

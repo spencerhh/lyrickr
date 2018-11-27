@@ -17,7 +17,7 @@
     // API URLs and keys
     const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";
     const TASTEDIVE_API_URL = "https://tastedive.com/api/similar?callback=?";
-    const TASTEDIVE_API_KEY = "324293-infomuse-4AWO4LX1";
+    const TASTEDIVE_API_KEY = "324293-lyrickr-KFTB6MHP";
 
     window.addEventListener("load", initialize);
 

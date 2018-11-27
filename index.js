@@ -7,6 +7,9 @@
      * 5. Songkick API implementation
      */
 
+
+     // Lil Baby All of a Sudden doesn't have related artists
+
     "use strict";
 
     let lyricsSuccess = true;
@@ -211,15 +214,18 @@
      */
     function displayTasteDiveData(data) {
         $("content-container").append(data[0]); // Artist's bio
-        let relatedArtistsSection = document.createElement("div");
-        relatedArtistsSection.classList.add("content-child");
-        let relatedArtistsList = document.createElement("ul");
-        for (let i = 1; i < 11; i++) {
-            relatedArtistsList.append(data[i]);
-        }
 
-        relatedArtistsSection.append(relatedArtistsList);
-        $("content-container").append(relatedArtistsSection);
+        if(data[1] != undefined) { // Handles case for artists without related artists, but have bios
+            let relatedArtistsSection = document.createElement("div");
+            relatedArtistsSection.classList.add("content-child");
+            let relatedArtistsList = document.createElement("ul");
+            for (let i = 1; i < 11; i++) {
+                relatedArtistsList.append(data[i]);
+            }
+
+            relatedArtistsSection.append(relatedArtistsList);
+            $("content-container").append(relatedArtistsSection);
+        }
     }
 
 

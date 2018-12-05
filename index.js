@@ -5,19 +5,28 @@
      * 3. Allow for related artists to be expanded
      * 4. Overall design updates
      * 5. Songkick API implementation
+     * 6. Add constants for hardcoded values
+     * 7. Update comments
+     * 8. Doesn't update after totalError for some reason
      */
-
-
-     // Lil Baby All of a Sudden doesn't have related artists
 
     "use strict";
 
     let lyricsSuccess = true;
 
     // API URLs and keys
-    const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";
-    const TASTEDIVE_API_URL = "https://tastedive.com/api/similar?callback=?";
-    const TASTEDIVE_API_KEY = "324293-lyrickr-KFTB6MHP";
+    const API_URLS = ["https://api.lyrics.ovh/v1/", "https://tastedive.com/api/similar?callback=?", 
+        "https://api.songkick.com/api/3.0/search/artists.json?apikey={"];
+    const API_KEYS = ["324293-lyrickr-KFTB6MHP", "WT5YY3PAVZEiiiqv"];
+
+
+
+    //const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";
+    // const TASTEDIVE_API_URL = "https://tastedive.com/api/similar?callback=?";
+    // const TASTEDIVE_API_KEY = "324293-lyrickr-KFTB6MHP";
+    // const SONGKICK_API_URL = "https://api.songkick.com/api/3.0/search/artists.json?apikey={your_api_key}&query={artist_name}";
+    // const SONGKICK_API_KEY = "WT5YY3PAVZEiiiqv";
+    // const MUSIXMATCH_API_URL = "";
 
     window.addEventListener("load", initialize);
 
@@ -67,11 +76,21 @@
     }
 
 
+
+
+
+
+
+    /* ------------------------------- Error Handling ------------------------------- */
+
+
+
+
     /**
      * Displays an error message for the user if all retrievals fail and hides
      * the error message if the user clicks back into the input boxes.
      */
-    function handleError() {
+    function handleTotalError() {
         $("content-section").classList.remove("hidden");
         $("content-header").innerHTML = "sorry!";
 
@@ -99,6 +118,21 @@
     }
 
 
+
+
+
+
+
+
+    // API_URLS[i];
+    // API_KEYS[i];
+
+
+
+    /* ------------------------------- Lyrics.ovh API ------------------------------- */
+
+
+
     /**
      * Makes an AJAX call using the artist's name and song title.
      * @param {string} artistName - artist name from the user
@@ -107,7 +141,7 @@
      * @returns {el} lyrics - lyrics data if the retrieval succeeds
      */
     function retrieveLyrics(artistName, songTitle) {
-        let url = LYRIC_API_URL + artistName + "/" + songTitle;
+        let url = API_URLS[0] + artistName + "/" + songTitle;
 
         fetch(url, {
                 mode: "cors"
@@ -147,6 +181,21 @@
     }
 
 
+
+
+
+
+
+
+
+
+
+
+    /* -------------------------------- TasteDive API -------------------------------- */
+
+
+
+
     /**
      * Uses jQuery to request data about the user's specified artist. It returns false
      * to the main function if the request fails and returns the desired data if it
@@ -158,17 +207,17 @@
     function retrieveTasteDive(artistName) {
         let query = {
             type: "music",
-            k: TASTEDIVE_API_KEY,
+            k: API_KEYS[0],
             q: artistName,
             limit: 10,
             info: 1
         };
 
-        jQuery.getJSON(TASTEDIVE_API_URL, query, function(data) {
+        jQuery.getJSON(API_URLS[1], query, function(data) {
             let result = data.Similar;
             if (result.Info[0].Type == "unknown") {
-                if (lyricsSuccess == false) {
-                    handleError();
+                if (lyricsSuccess == false) { // Probably need to add functionality for when there are related artists, but no bio
+                    handleTotalError();
                 }
             } else {
                 returnTasteDive(result);
@@ -229,7 +278,26 @@
     }
 
 
-    /* ------------------------------ Helper Functions  ------------------------------ */
+
+
+
+    /* -------------------------------- Songkick API -------------------------------- */
+
+
+
+
+    /* ------------------------------- Musixmatch API ------------------------------- */
+
+
+
+
+
+
+
+
+
+
+    /* ------------------------------ Helper Functions ------------------------------ */
 
     /**
      * Returns the element that has the ID attribute with the specified value.
@@ -238,15 +306,6 @@
      */
     function $(id) {
         return document.getElementById(id);
-    }
-
-    /**
-     * Returns the first element that matches the given CSS selector.
-     * @param {string} query - CSS query selector.
-     * @returns {object} The first DOM object matching the query.
-     */
-    function qs(query) {
-        return document.querySelector(query);
     }
 
     /**

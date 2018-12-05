@@ -14,10 +14,15 @@
     let lyricsSuccess = true;
 
     // Base URLs and keys for APIs
-    const API_URLS = {lyrics: "https://api.lyrics.ovh/v1/", 
-        tastedive: "https://tastedive.com/api/similar?callback=?", 
-        songkick: "https://api.songkick.com/api/3.0/search/artists.json?apikey={"};
-    const API_KEYS = {tastedive: "324293-lyrickr-KFTB6MHP", songkick: "WT5YY3PAVZEiiiqv"};
+    const API_URLS = {
+        lyrics: "https://api.lyrics.ovh/v1/",
+        tastedive: "https://tastedive.com/api/similar?callback=?",
+        songkick: "https://api.songkick.com/api/3.0/search/artists.json?apikey={"
+    };
+    const API_KEYS = {
+        tastedive: "324293-lyrickr-KFTB6MHP",
+        songkick: "WT5YY3PAVZEiiiqv"
+    };
 
 
     window.addEventListener("load", initialize);
@@ -120,8 +125,8 @@
             })
             .then(checkStatus)
             .then(JSON.parse)
-            .then(displayLyricsData) 
-            .catch(handleLyricsError); 
+            .then(displayLyricsData)
+            .catch(handleLyricsError);
     }
 
 
@@ -179,7 +184,7 @@
         jQuery.getJSON(API_URLS.tastedive, query, function(data) {
             let result = data.Similar;
             if (result.Info[0].Type == "unknown") {
-                if (lyricsSuccess == false) { 
+                if (lyricsSuccess == false) {
                     handleTotalError();
                 }
             } else {
@@ -200,7 +205,7 @@
 
         let artistBio = data.Info[0].wTeaser;
         let artistWiki = data.Info[0].wUrl;
-        artistBio = artistBio + "\n" + artistWiki; 
+        artistBio = artistBio + "\n" + artistWiki;
 
         let artistBioP = document.createElement("p");
         artistBioP.innerHTML = artistBio;
@@ -229,14 +234,14 @@
 
         // Possibly needs a case for artist's with no bio, but related artists
 
-        if($("content-section").classList.contains("hidden")) {
+        if ($("content-section").classList.contains("hidden")) {
             $("content-section").classList.remove("hidden");
         }
         $("content-header").innerHTML = "lyrics, bio, & related artists";
 
         $("content-container").append(data[0]); // Artist's bio
 
-        if(data[1] != undefined) { // Handles case for artists without related artists, but have bios
+        if (data[1] != undefined) { // Handles case for artists without related artists, but have bios
             let relatedArtistsSection = document.createElement("div");
             relatedArtistsSection.classList.add("content-child");
             let relatedArtistsList = document.createElement("ul");
@@ -253,7 +258,6 @@
 
 
     /* -------------------------------- Songkick API -------------------------------- */
-
 
 
 

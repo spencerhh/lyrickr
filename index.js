@@ -1,42 +1,33 @@
 (function() {
     /* Need to...
      * 1. Create <a> tags for Wikipedia links
-     * 2. Switch from the lyrics.ovh API to musixmatch
-     * 3. Allow for related artists to be expanded
+     * 2. Switch from the lyrics.ovh API to Musixmatch (check output for free access)
+     * 3. Allow for related artists to be expanded (bios, links, etc.)
      * 4. Overall design updates
      * 5. Songkick API implementation
-     * 6. Add constants for hardcoded values
-     * 7. Update comments
-     * 8. Doesn't update after totalError for some reason
+     * 6. Update comments
+     * 7. Use some sort of global boolean for handling content creation and error messages
      */
 
     "use strict";
 
     let lyricsSuccess = true;
 
-    // API URLs and keys
-    const API_URLS = ["https://api.lyrics.ovh/v1/", "https://tastedive.com/api/similar?callback=?", 
-        "https://api.songkick.com/api/3.0/search/artists.json?apikey={"];
-    const API_KEYS = ["324293-lyrickr-KFTB6MHP", "WT5YY3PAVZEiiiqv"];
+    // Base URLs and keys for APIs
+    const API_URLS = {lyrics: "https://api.lyrics.ovh/v1/", 
+        tastedive: "https://tastedive.com/api/similar?callback=?", 
+        songkick: "https://api.songkick.com/api/3.0/search/artists.json?apikey={"};
+    const API_KEYS = {tastedive: "324293-lyrickr-KFTB6MHP", songkick: "WT5YY3PAVZEiiiqv"};
 
-
-
-    //const LYRIC_API_URL = "https://api.lyrics.ovh/v1/";
-    // const TASTEDIVE_API_URL = "https://tastedive.com/api/similar?callback=?";
-    // const TASTEDIVE_API_KEY = "324293-lyrickr-KFTB6MHP";
-    // const SONGKICK_API_URL = "https://api.songkick.com/api/3.0/search/artists.json?apikey={your_api_key}&query={artist_name}";
-    // const SONGKICK_API_KEY = "WT5YY3PAVZEiiiqv";
-    // const MUSIXMATCH_API_URL = "";
 
     window.addEventListener("load", initialize);
 
 
     /**
-     * Invokes data retrieval once the search button is clicked and allows
-     * for the "enter" key to invoke retrieval.
+     * Allows for data retrieval to be initiated with the "Search "button and enter key.
      */
     function initialize() {
-        $("search").addEventListener("click", retrieveDataFromRequest);
+        $("search").addEventListener("click", search);
 
         document.getElementById("artist-name")
             .addEventListener("keyup", function(event) {
@@ -57,12 +48,10 @@
 
 
     /**
-     * Clears out any previous content and initiates the functions for data retrieval.
-     * Then displays the retrieved data or produces an error message (only if all
-     * retrievals fail).
+     * Clears out any previous content and initiates the functions for data retrieval using
+     * the values specified by the user.
      */
-    function retrieveDataFromRequest() {
-        // Clears out previous content
+    function search() {
         let contentChildren = qsa(".content-child");
         contentChildren.forEach(function(child) {
             child.remove();
@@ -71,12 +60,8 @@
         let artistName = $("artist-name").value;
         let songTitle = $("song-title").value;
 
-        // If the retrieval fails, these variables will contain a value of "false"
-        retrieveLyrics(artistName, songTitle); // Uses the lyrics.ovh API
+        retrieveLyricsData(artistName, songTitle); // Uses the lyrics.ovh API
     }
-
-
-
 
 
 
@@ -84,10 +69,8 @@
     /* ------------------------------- Error Handling ------------------------------- */
 
 
-
-
     /**
-     * Displays an error message for the user if all retrievals fail and hides
+     * Displays an error message for the user if all API retrievals fail and hides
      * the error message if the user clicks back into the input boxes.
      */
     function handleTotalError() {
@@ -107,7 +90,7 @@
 
 
     /**
-     * Resets the content section after an error has occurred.
+     * Resets the content section after a total error has occurred.
      */
     function hideContentSection() {
         $("content-section").classList.add("hidden");
@@ -120,46 +103,35 @@
 
 
 
-
-
-
-
-    // API_URLS[i];
-    // API_KEYS[i];
-
-
-
     /* ------------------------------- Lyrics.ovh API ------------------------------- */
 
 
-
     /**
-     * Makes an AJAX call using the artist's name and song title.
+     * Makes an AJAX call using the artist's name and song title. Success and failure
+     * will both end up using the TasteDive API, but success will display the lyrics.
      * @param {string} artistName - artist name from the user
      * @param {string} songTitle - song title from the user
-     * @returns {boolean} false - if the retrieval fails
-     * @returns {el} lyrics - lyrics data if the retrieval succeeds
      */
-    function retrieveLyrics(artistName, songTitle) {
-        let url = API_URLS[0] + artistName + "/" + songTitle;
+    function retrieveLyricsData(artistName, songTitle) {
+        let url = API_URLS.lyrics + artistName + "/" + songTitle;
 
         fetch(url, {
                 mode: "cors"
             })
             .then(checkStatus)
             .then(JSON.parse)
-            .then(returnLyrics) // Returns the lyrics to the main function
-            .catch(handleLyricError); // Returns false to the main function
+            .then(displayLyricsData) 
+            .catch(handleLyricsError); 
     }
 
 
     /**
-     * Retrieves the lyrics and returns them in a <pre> element.
+     * Displays the lyrics on the page and initiates the TasteDive API call.
      * @param {JSON} responseData - JSON response from lyrics.ovh
-     * @return {el} lyrics - JSON response converted into a <pre> element
      */
-    function returnLyrics(responseData) {
-        lyricsSuccess = true;
+    function displayLyricsData(responseData) {
+        lyricsSuccess = true; // Resets this value after possible previous total errors
+
         let lyricsData = responseData.lyrics;
         let lyrics = document.createElement("pre");
         lyrics.classList.add("content-child");
@@ -167,26 +139,19 @@
 
         $("content-section").classList.remove("hidden");
         $("content-container").append(lyrics);
-        retrieveTasteDive($("artist-name").value); // Uses the TasteDive API
+
+        retrieveTasteDiveData($("artist-name").value); // Uses the TasteDive API
     }
 
 
     /**
-     * Returns false to the main function.
-     * @return {boolean} false - returns false to the main function if retrieval fails
+     * Sets the global lyricsSuccess boolean to false in case of TasteDive API failure.
+     * Then attempts to use the TasteDive API.
      */
-    function handleLyricError() {
+    function handleLyricsError() {
         lyricsSuccess = false;
-        retrieveTasteDive($("artist-name").value); // Uses the TasteDive API
+        retrieveTasteDiveData($("artist-name").value);
     }
-
-
-
-
-
-
-
-
 
 
 
@@ -194,50 +159,48 @@
     /* -------------------------------- TasteDive API -------------------------------- */
 
 
-
-
     /**
-     * Uses jQuery to request data about the user's specified artist. It returns false
-     * to the main function if the request fails and returns the desired data if it
-     * succeeds.
+     * Uses jQuery to request data about the user's specified artist. If this and the 
+     * lyrics.ovh call failed, it will invoke the handleTotalError function. Success
+     * of this function will display its data.
      * @param {string} artistName - artist name from the user
      * @return {boolean} false - if the retrieval fails
      * @return {object[]} tasteDiveData - TasteDive data if the retrieval succeeds
      */
-    function retrieveTasteDive(artistName) {
+    function retrieveTasteDiveData(artistName) {
         let query = {
             type: "music",
-            k: API_KEYS[0],
+            k: API_KEYS.tastedive,
             q: artistName,
             limit: 10,
             info: 1
         };
 
-        jQuery.getJSON(API_URLS[1], query, function(data) {
+        jQuery.getJSON(API_URLS.tastedive, query, function(data) {
             let result = data.Similar;
             if (result.Info[0].Type == "unknown") {
-                if (lyricsSuccess == false) { // Probably need to add functionality for when there are related artists, but no bio
+                if (lyricsSuccess == false) { 
                     handleTotalError();
                 }
             } else {
-                returnTasteDive(result);
+                prepareTasteDiveData(result);
             }
         });
     }
 
 
     /**
-     * Creates an object of elements ready to be appending to the document using the 
-     * data returned from the TasteDive API.
+     * Creates an object of elements ready to be appended to the document using the 
+     * data returned from the TasteDive API. Passes this object to displayTasteDiveData
+     * to be displayed.
      * @param {JSON} data - JSON data from TasteDive API
-     * @return {object[]} tasteDiveData - object containing elements created with data
      */
-    function returnTasteDive(data) {
+    function prepareTasteDiveData(data) {
         let tasteDiveData = {};
 
         let artistBio = data.Info[0].wTeaser;
         let artistWiki = data.Info[0].wUrl;
-        artistBio = artistBio + "\n" + artistWiki; // make this an element instead of innerHTML
+        artistBio = artistBio + "\n" + artistWiki; 
 
         let artistBioP = document.createElement("p");
         artistBioP.innerHTML = artistBio;
@@ -258,10 +221,19 @@
 
 
     /**
-     * Appends content-container with the elements containg the TasteDive data.
+     * Prepares the content section for display and then appends the content-container with 
+     * the elements containg the TasteDive data.
      * @param {object[]} data - object full of elements with TasteDive data
      */
     function displayTasteDiveData(data) {
+
+        // Possibly needs a case for artist's with no bio, but related artists
+
+        if($("content-section").classList.contains("hidden")) {
+            $("content-section").classList.remove("hidden");
+        }
+        $("content-header").innerHTML = "lyrics, bio, & related artists";
+
         $("content-container").append(data[0]); // Artist's bio
 
         if(data[1] != undefined) { // Handles case for artists without related artists, but have bios
@@ -280,19 +252,13 @@
 
 
 
-
     /* -------------------------------- Songkick API -------------------------------- */
 
 
 
 
+
     /* ------------------------------- Musixmatch API ------------------------------- */
-
-
-
-
-
-
 
 
 
@@ -331,5 +297,4 @@
             return Promise.reject(new Error(response.status + ": " + response.statusText));
         }
     }
-
 })();

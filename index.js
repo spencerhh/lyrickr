@@ -205,10 +205,17 @@
 
         let artistBio = data.Info[0].wTeaser;
         let artistWiki = data.Info[0].wUrl;
-        artistBio = artistBio + "\n" + artistWiki;
+        artistBio = artistBio; // + "\n" + artistWiki;
+
+        let artistWikiLink = document.createElement("a");
+        artistWikiLink.href = artistWiki;
+        artistWikiLink.innerHTML = "Wikipedia";
+        artistWikiLink.target = "blank";
 
         let artistBioP = document.createElement("p");
         artistBioP.innerHTML = artistBio;
+        artistBioP.append(document.createElement("br"));
+        artistBioP.append(artistWikiLink);
         let artistBioDiv = document.createElement("div");
         artistBioDiv.classList.add("content-child");
         artistBioDiv.append(artistBioP);
@@ -217,7 +224,11 @@
         // Stores individual <li> elements in the rest of the tasteDiveData object
         for (let i = 0; i < data.Results.length; i++) {
             let relatedArtist = document.createElement("li");
-            relatedArtist.innerHTML = data.Results[i].Name + " (" + data.Results[i].wUrl + ")";
+            let relatedArtistLink = document.createElement("a");
+            relatedArtistLink.href = data.Results[i].wUrl;
+            relatedArtistLink.target = "blank";
+            relatedArtistLink.innerHTML = data.Results[i].Name;
+            relatedArtist.append(relatedArtistLink);
             tasteDiveData[i + 1] = relatedArtist;
         }
 

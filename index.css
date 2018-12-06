@@ -1,21 +1,59 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto+Slab");
+
 body {
   font-family: "Roboto Slab", serif;
   font-size: 1em;
 }
 
-h1,
-h2,
-input,
-button {
-  color: #db0c28;
-}
-
-footer {
+.topnav {
   position: absolute;
   left: 0;
   right: 0;
-  text-align: center;
+  top: 0;
+  overflow: hidden;
+  background-color: #71b0e5;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topnav input {
+  padding: 6px;
+  border: none;
+  font-size: 16px;
+}
+
+.topnav .search-container button {
+  padding: 6px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.topnav .search-container button:hover {
+  color: white;
+  background-color: #985c3a;
+}
+
+.search-container {
+  margin-left: 30px;
+}
+
+input, button {
+  width: 30%;
+}
+
+.site-title {
+  margin-right: 30px;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+h1, h2, input, button {
+  color: #db0c28;
 }
 
 main {
@@ -33,26 +71,14 @@ article {
   padding-right: 10px;
 }
 
-article,
-.content-child,
-a {
+article, .content-child, a {
   color: #985c3a;
 }
 
-input,
-button {
-  width: 30%;
-  padding: 10px;
-}
-
-pre,
-input,
-button {
+pre, input, button {
   font-family: "Roboto Slab", serif;
 }
 
-input,
-button,
 .content-child {
   font-size: .8em;
 }
@@ -91,67 +117,6 @@ button,
   overflow: hidden;
 }
 
-footer {
-  position: relative;
-  font-size: .85em;
-  background-color: #985c3a;
-  color: white;
-}
-
 .hidden {
   display: none;
-}
-
-h1 {
-  padding: 10px;
-  top: 0;
-  float: left;
-  font-size: 30px;
-}
-
-.site-title {
-  float: left;
-}
-
-.topnav {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  overflow: hidden;
-  background-color: #71b0e5;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.topnav .search-container {
-  float: right;
-}
-
-.search-container {
-  margin-left: 30px;
-}
-
-.site-title {
-  margin-right: 30px;
-}
-
-.topnav input[type=text] {
-  padding: 6px;
-  font-size: 17px;
-  border: none;
-}
-
-.topnav .search-container button {
-  float: right;
-  padding: 6px 10px;
-  font-size: 17px;
-  border: none;
-  cursor: pointer;
-}
-
-.topnav .search-container button:hover {
-  background: #985c3a;
-  color: white;
 }

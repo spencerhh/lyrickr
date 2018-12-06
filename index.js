@@ -136,7 +136,7 @@
      */
     function displayLyricsData(responseData) {
         lyricsSuccess = true; // Resets this value after possible previous total errors
-
+        
         let lyricsData = responseData.lyrics;
         let lyrics = document.createElement("pre");
         lyrics.classList.add("content-child");

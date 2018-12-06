@@ -3,6 +3,7 @@
 body {
   font-family: "Roboto Slab", serif;
   font-size: 1em;
+  background-color: #d7cec7;
 }
 
 .topnav {
@@ -11,7 +12,7 @@ body {
   right: 0;
   top: 0;
   overflow: hidden;
-  background-color: #71b0e5;
+  background-color: #565656;
   display: flex;
   flex-flow: row wrap;
   justify-content: space-around;
@@ -33,7 +34,7 @@ body {
 
 .topnav .search-container button:hover {
   color: white;
-  background-color: #985c3a;
+  background-color: #c09f80;
 }
 
 .search-container {
@@ -53,7 +54,7 @@ h1 {
 }
 
 h1, h2, input, button {
-  color: #db0c28;
+  color: #c09f80;
 }
 
 main {
@@ -65,7 +66,7 @@ main {
 }
 
 h2 {
-  border-bottom: 5px solid #71b0e5;
+  border-bottom: 5px solid #565656;
 }
 
 article {
@@ -74,7 +75,7 @@ article {
 }
 
 article, .content-child, a {
-  color: #985c3a;
+  color: #76323f;
 }
 
 pre, input, button {
@@ -91,20 +92,20 @@ pre, input, button {
 
 ::placeholder {
   /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: #71b0e5;
+  color: #76323f;
   opacity: .5;
   /* Firefox */
 }
 
 :-ms-input-placeholder {
   /* Internet Explorer 10-11 */
-  color: #71b0e5;
+  color: #76323f;
   opacity: .5;
 }
 
 ::-ms-input-placeholder {
   /* Microsoft Edge */
-  color: #71b0e5;
+  color: #76323f;
   opacity: .5;
 }
 

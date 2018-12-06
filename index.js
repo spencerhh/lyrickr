@@ -205,7 +205,6 @@
 
         let artistBio = data.Info[0].wTeaser;
         let artistWiki = data.Info[0].wUrl;
-        artistBio = artistBio; // + "\n" + artistWiki;
 
         let artistWikiLink = document.createElement("a");
         artistWikiLink.href = artistWiki;
@@ -217,6 +216,7 @@
         artistBioP.append(document.createElement("br"));
         artistBioP.append(document.createElement("br"));
         artistBioP.append(artistWikiLink);
+
         let artistBioDiv = document.createElement("div");
         artistBioDiv.classList.add("content-child");
         artistBioDiv.append(artistBioP);
@@ -225,11 +225,13 @@
         // Stores individual <li> elements in the rest of the tasteDiveData object
         for (let i = 0; i < data.Results.length; i++) {
             let relatedArtist = document.createElement("li");
+
             let relatedArtistLink = document.createElement("a");
             relatedArtistLink.href = data.Results[i].wUrl;
             relatedArtistLink.target = "blank";
             relatedArtistLink.innerHTML = data.Results[i].Name;
             relatedArtist.append(relatedArtistLink);
+
             tasteDiveData[i + 1] = relatedArtist;
         }
 
@@ -243,9 +245,7 @@
      * @param {object[]} data - object full of elements with TasteDive data
      */
     function displayTasteDiveData(data) {
-
         // Possibly needs a case for artist's with no bio, but related artists
-
         if ($("content-section").classList.contains("hidden")) {
             $("content-section").classList.remove("hidden");
         }
@@ -253,15 +253,15 @@
 
         $("content-container").append(data[0]); // Artist's bio
 
-
-
         if (data[1] != undefined) { // Handles case for artists without related artists, but have bios
             let sectionTitle = document.createElement("p");
             sectionTitle.innerHTML = "Related Artists";
             sectionTitle.id = "related-artists";
+
             let relatedArtistsSection = document.createElement("div");
             relatedArtistsSection.classList.add("content-child");
             relatedArtistsSection.append(sectionTitle);
+
             let relatedArtistsList = document.createElement("ul");
             for (let i = 1; i < 11; i++) {
                 relatedArtistsList.append(data[i]);
@@ -276,9 +276,6 @@
 
 
     /* -------------------------------- Songkick API -------------------------------- */
-
-
-
 
     /* ------------------------------- Musixmatch API ------------------------------- */
 

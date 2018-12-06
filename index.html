@@ -12,23 +12,22 @@
 
 <body>
     <header>
-            <div class="topnav">
-                <!--<a class="active" href="#home">Home</a>
-                <a href="#about">About</a>
-                <a href="#contact">Contact</a>-->
-                <div class="search-container">
-                    <form action="/action_page.php">
-                        <input type="text" placeholder="Search.." name="search">
-                        <button type="submit"><i class="fa fa-search"></i></button>
-                    </form>
-                </div>
+        <div class="topnav">
+            <div class="search-container">
+                <input id="artist-name" type="text" name="artist-name" placeholder="Artist name...">
+                <input id="song-title" type="text" name="song-title" placeholder="Song title...">
+                <button id="search" type="submit">Search</button>
             </div>
-        
+            <div class="site-title">
+                <h1>lyrickr</h1>
+            </div>
+        </div>
+
     </header>
 
     <main>
         <section>
-            <h2>what is this?</h2>
+            <h2>about</h2>
             <article>
                 <p>
                     This is my attempt at combining my current knowledge of web development
@@ -53,14 +52,11 @@
                     API is case-insensitive, but the spelling must be exact. Unfortunately, this
                     API doesn't allow for the artist to be featured on the song when searching.
                 </p>
-                <input id="artist-name" type="text" placeholder="Artist name...">
-                <input id="song-title" type="text" placeholder="Song title...">
-                <button id="search" type="submit">Search</button>
             </article>
         </section>
 
         <section id="content-section" class="hidden">
-            <h2 id="content-header">lyrics, bio, & related artists</h2>
+            <h2 id="content-header">retrieved data</h2>
             <div id="content-container"></div>
         </section>
     </main>

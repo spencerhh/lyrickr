@@ -1,12 +1,12 @@
 (function() {
     /* Need to...
-     * 1. Create <a> tags for Wikipedia links
-     * 2. Switch from the lyrics.ovh API to Musixmatch (check output for free access)
-     * 3. Allow for related artists to be expanded (bios, links, etc.)
-     * 4. Overall design updates
-     * 5. Songkick API implementation
-     * 6. Update comments
-     * 7. Use some sort of global boolean for handling content creation and error messages
+     * 1. Switch from the lyrics.ovh API to Musixmatch (check output for free access)
+     * 2. Allow for related artists to be expanded (bios, links, etc.)
+     * 3. Overall design updates
+     * 4. Songkick API implementation
+     * 5. Update comments
+     * 6. Use some sort of global boolean for handling content creation and error messages
+     * 7. Content section header title based on returned data
      */
 
     "use strict";
@@ -99,7 +99,7 @@
      */
     function hideContentSection() {
         $("content-section").classList.add("hidden");
-        $("content-header").innerHTML = "lyrics, bio, & related artists";
+        $("content-header").innerHTML = "retrieved data";
 
         $("artist-name").removeEventListener("click", hideContentSection);
         $("song-title").removeEventListener("click", hideContentSection);
@@ -215,6 +215,7 @@
         let artistBioP = document.createElement("p");
         artistBioP.innerHTML = artistBio;
         artistBioP.append(document.createElement("br"));
+        artistBioP.append(document.createElement("br"));
         artistBioP.append(artistWikiLink);
         let artistBioDiv = document.createElement("div");
         artistBioDiv.classList.add("content-child");
@@ -248,13 +249,19 @@
         if ($("content-section").classList.contains("hidden")) {
             $("content-section").classList.remove("hidden");
         }
-        $("content-header").innerHTML = "lyrics, bio, & related artists";
+        $("content-header").innerHTML = "retrieved data";
 
         $("content-container").append(data[0]); // Artist's bio
 
+
+
         if (data[1] != undefined) { // Handles case for artists without related artists, but have bios
+            let sectionTitle = document.createElement("p");
+            sectionTitle.innerHTML = "Related Artists";
+            sectionTitle.id = "related-artists";
             let relatedArtistsSection = document.createElement("div");
             relatedArtistsSection.classList.add("content-child");
+            relatedArtistsSection.append(sectionTitle);
             let relatedArtistsList = document.createElement("ul");
             for (let i = 1; i < 11; i++) {
                 relatedArtistsList.append(data[i]);

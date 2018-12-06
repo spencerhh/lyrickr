@@ -7,6 +7,8 @@
      * 5. Update comments
      * 6. Use some sort of global boolean for handling content creation and error messages
      * 7. Content section header title based on returned data
+     * 8. Scrolling in data sections (or expansion)
+     * 9. Mathematical breakdown of lyrics or something interesting
      */
 
     "use strict";
@@ -80,7 +82,7 @@
      */
     function handleTotalError() {
         $("content-section").classList.remove("hidden");
-        $("content-header").innerHTML = "sorry!";
+        $("content-header").innerHTML = "sorry";
 
         let errorDiv = document.createElement("div");
         errorDiv.classList.add("content-child");
@@ -136,7 +138,7 @@
      */
     function displayLyricsData(responseData) {
         lyricsSuccess = true; // Resets this value after possible previous total errors
-        
+
         let lyricsData = responseData.lyrics;
         let lyrics = document.createElement("pre");
         lyrics.classList.add("content-child");

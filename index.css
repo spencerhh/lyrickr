@@ -1,5 +1,4 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto+Slab");
-
 body {
   font-family: "Roboto Slab", serif;
   font-size: 1em;
@@ -32,18 +31,58 @@ body {
   cursor: pointer;
 }
 
-.topnav .search-container button:hover {
-  color: white;
-  background-color: #c09f80;
-}
-
 .search-container {
   margin-left: 45px;
 }
 
-input, button {
+input,
+button {
   width: 30%;
 }
+
+/* SHIFT */
+.shift {
+  position: relative;
+  z-index: 1;
+}
+
+.shift:hover {
+  color: white;
+}
+
+.shift:after {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  width: 100%;
+  height: 1px;
+  content: '.';
+  color: transparent;
+  background: #c09f80;
+  visibility: none;
+  opacity: 0;
+  z-index: -1;
+}
+
+.shift:hover:after {
+  opacity: 1;
+  visibility: visible;
+  height: 100%;
+}
+
+.shift:after,
+.shift:before {
+  transition: all .5s;
+}
+
+.shift:focus {
+  outline: none;
+}
+/* SHIFT */
 
 .site-title {
   margin-right: 45px;
@@ -53,7 +92,10 @@ h1 {
   font-size: 30px;
 }
 
-h1, h2, input, button {
+h1,
+h2,
+input,
+button {
   color: #c09f80;
 }
 
@@ -74,11 +116,15 @@ article {
   padding-right: 10px;
 }
 
-article, .content-child, a {
+article,
+.content-child,
+a {
   color: #76323f;
 }
 
-pre, input, button {
+pre,
+input,
+button {
   font-family: "Roboto Slab", serif;
 }
 

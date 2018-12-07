@@ -5,27 +5,28 @@
      * 3. Overall design updates
      * 4. Songkick API implementation
      * 5. Update comments
-     * 6. Use some sort of global boolean for handling content creation and error messages
-     * 7. Content section header title based on returned data
-     * 8. Scrolling in data sections (or expansion)
-     * 9. Mathematical breakdown of lyrics or something interesting
-     * 10. 404 page
-     * 11. Check if works without JS
+     * 6. Content section header title based on returned data
+     * 7. Mathematical breakdown of lyrics or something interesting
+     * 8. 404 page
+     * 9. Check if works without JS
+     * 10. Sitemap
+     * 11. Some sort of styling for total error
      */
 
     "use strict";
 
     let lyricsSuccess = true;
+    let tasteDiveSuccess = true;
 
     // Base URLs and keys for APIs
     const API_URLS = {
         lyrics: "https://api.lyrics.ovh/v1/",
         tastedive: "https://tastedive.com/api/similar?callback=?",
-        songkick: "https://api.songkick.com/api/3.0/search/artists.json?apikey={"
+        songkick: "https://api.songkick.com/api/3.0/search/artists.json?apikey="
     };
     const API_KEYS = {
         tastedive: "324293-lyrickr-KFTB6MHP",
-        songkick: "WT5YY3PAVZEiiiqv"
+        songkick: "WT5YY3PAVZEiiiqv",
     };
 
 
@@ -61,10 +62,7 @@
      * the values specified by the user.
      */
     function search() {
-        let contentChildren = qsa(".content-child");
-        contentChildren.forEach(function(child) {
-            child.remove();
-        });
+        killTheChildren();
 
         let artistName = $("artist-name").value;
         let songTitle = $("song-title").value;
@@ -83,8 +81,11 @@
      * the error message if the user clicks back into the input boxes.
      */
     function handleTotalError() {
+        // Possibly delete children? Saw an error with two error messages because clicks were in quick succession
         $("content-section").classList.remove("hidden");
         $("content-header").innerHTML = "sorry";
+
+        killTheChildren();
 
         let errorDiv = document.createElement("div");
         errorDiv.classList.add("content-child");
@@ -188,10 +189,14 @@
         jQuery.getJSON(API_URLS.tastedive, query, function(data) {
             let result = data.Similar;
             if (result.Info[0].Type == "unknown") {
+                tasteDiveSuccess = false;
                 if (lyricsSuccess == false) {
                     handleTotalError();
+                } else {
+                    retrieveSongkickData(artistName);
                 }
             } else {
+                tasteDiveSuccess = true;
                 prepareTasteDiveData(result);
             }
         });
@@ -274,6 +279,7 @@
             relatedArtistsSection.append(relatedArtistsList);
             $("content-container").append(relatedArtistsSection);
         }
+        retrieveSongkickData($("artist-name").value);
     }
 
 
@@ -281,12 +287,67 @@
 
     /* -------------------------------- Songkick API -------------------------------- */
 
+
+    /**
+     * ...
+     * @param {type} name - description
+     */
+    function retrieveSongkickData(artistName) {
+        let url = API_URLS.songkick + API_KEYS.songkick + "&query=" + artistName;
+
+        fetch(url, {
+                mode: "cors"
+            })
+            .then(checkStatus)
+            .then(JSON.parse)
+            .then(displaySongkickData)
+            .catch(handleSongkickError);
+    }
+
+
+    /**
+     * ...
+     * @param {type} name - description
+     */
+    function displaySongkickData(responseData) {
+        console.log(responseData);
+        if (responseData.resultsPage.status == "ok") {
+            console.log("And the value we actually want (artist id) is: " + responseData.resultsPage.results.artist[0].id);
+        }
+    }
+
+
+    /**
+     * ...
+     * @param {type} name - description
+     */
+    function handleSongkickError(error) {
+        if (!(lyricsSuccess && tasteDiveSuccess)) {
+            handleTotalError();
+        } else {
+            console.log("Songkick didn't work, but at least something did.");
+        }
+    }
+
+
+
+
     /* ------------------------------- Musixmatch API ------------------------------- */
 
 
 
 
     /* ------------------------------ Helper Functions ------------------------------ */
+
+    /**
+     * ...
+     */
+    function killTheChildren() {
+        let contentChildren = qsa(".content-child");
+        contentChildren.forEach(function(child) {
+            child.remove();
+        });
+    }
 
     /**
      * Returns the element that has the ID attribute with the specified value.

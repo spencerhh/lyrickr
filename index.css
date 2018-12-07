@@ -163,7 +163,8 @@ button {
 
 .content-child {
   max-width: 33%;
-  overflow: hidden;
+  max-height: 500px;
+  overflow: auto;
 }
 
 .hidden {

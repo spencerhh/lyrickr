@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css?family=Roboto+Slab");
+
 body {
   font-family: "Roboto Slab", serif;
   font-size: 1em;
@@ -35,8 +36,7 @@ body {
   margin-left: 45px;
 }
 
-input,
-button {
+input, button {
   width: 30%;
 }
 
@@ -92,10 +92,7 @@ h1 {
   font-size: 30px;
 }
 
-h1,
-h2,
-input,
-button {
+h1, h2, input, button {
   color: #c09f80;
 }
 
@@ -116,15 +113,11 @@ article {
   padding-right: 10px;
 }
 
-article,
-.content-child,
-a {
+article, .content-child, a {
   color: #76323f;
 }
 
-pre,
-input,
-button {
+pre, input, button {
   font-family: "Roboto Slab", serif;
 }
 

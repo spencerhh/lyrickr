@@ -9,6 +9,8 @@
      * 7. Content section header title based on returned data
      * 8. Scrolling in data sections (or expansion)
      * 9. Mathematical breakdown of lyrics or something interesting
+     * 10. 404 page
+     * 11. Check if works without JS
      */
 
     "use strict";

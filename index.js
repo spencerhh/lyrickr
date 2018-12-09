@@ -1,19 +1,20 @@
 (function() {
     /* Need to...
      * 1. Switch from the lyrics.ovh API to Musixmatch (check output for free access)
-     * 2. Allow for related artists to be expanded (bios, links, etc.)
-     * 3. Overall design updates
-     * 4. Songkick API implementation
-     * 5. Update comments
-     * 6. Mathematical breakdown of lyrics or something interesting
-     * 7. Some sort of styling for total error
+     * 2. Overall design updates
+     * 3. Songkick API implementation
+     * 4. Update comments
+     * 5. Mathematical breakdown of lyrics or something interesting
+     * 6. Some sort of styling for total error
      */
 
     "use strict";
 
+    // Success of respective API calls for error handling (total failure changes page)
     let lyricsSuccess = true;
     let tasteDiveSuccess = true;
 
+    // Only used to add search functionality to the enter key in initialize()
     const inputIDs = ["artist-name", "song-title"];
 
     // Base URLs and keys for APIs
@@ -30,8 +31,9 @@
     window.addEventListener("load", initialize);
 
 
+
     /**
-     * Allows for data retrieval to be initiated with the "Search "button and enter key.
+     * Allows for data retrieval to be initiated with the "Search" button and enter key.
      */
     function initialize() {
         $("search").addEventListener("click", search);
@@ -39,7 +41,7 @@
         inputIDs.forEach(function(id) {
             $(id).addEventListener("keyup", function(event) {
                 event.preventDefault();
-                if (event.keyCode === 13) { // Code for the "enter" key
+                if (event.keyCode === 13) { // Code for the enter key
                     $("search").click();
                 }
             });
@@ -57,18 +59,18 @@
         let artistName = val("artist-name");
         let songTitle = val("song-title");
 
+        // Basic handling for missing parameters
         if (artistName == "" && songTitle == "") { // No forms are filled
             alert("Please fill in something to search.");
-        } else if (artistName == "" && songTitle != "") {
+        } else if (artistName == "" && songTitle != "") { // Song, but no artist
             alert("Please enter an artist.");
-        } else if (artistName != "" && songTitle == "") {
+        } else if (artistName != "" && songTitle == "") { // No song, jumps straight to TasteDive
             lyricsSuccess = true;
             retrieveTasteDiveData(artistName);
         } else { // Forms are properly filled
             retrieveLyricsData(artistName, songTitle); // Uses the lyrics.ovh API
         }
     }
-
 
 
 
@@ -79,8 +81,6 @@
      * the error message if the user clicks back into the input boxes.
      */
     function handleTotalError() {
-        // Possibly delete children? Saw an error with two error messages because clicks were in quick succession
-
         toggle("content-section", "hidden");
         $("content-header").innerHTML = "sorry";
 
@@ -108,7 +108,6 @@
         $("artist-name").removeEventListener("click", hideContentSection);
         $("song-title").removeEventListener("click", hideContentSection);
     }
-
 
 
 
@@ -163,7 +162,6 @@
 
 
 
-
     /* -------------------------------- TasteDive API -------------------------------- */
 
     /**
@@ -171,8 +169,6 @@
      * lyrics.ovh call failed, it will invoke the handleTotalError function. Success
      * of this function will display its data.
      * @param {string} artistName - artist name from the user
-     * @return {boolean} false - if the retrieval fails
-     * @return {object[]} tasteDiveData - TasteDive data if the retrieval succeeds
      */
     function retrieveTasteDiveData(artistName) {
         let query = {
@@ -232,6 +228,7 @@
             relatedArtistLink.classList.add("artist");
             relatedArtistLink.innerHTML = data.Results[i].Name;
 
+            // When the artist's name is clicked, the page updates with their information
             relatedArtistLink.addEventListener("click", function() {
                 $("artist-name").value = this.innerHTML;
                 $("song-title").value = "";
@@ -283,7 +280,6 @@
 
 
 
-
     /* -------------------------------- Songkick API -------------------------------- */
 
     /**
@@ -311,13 +307,9 @@
         console.log(responseData);
         if (responseData.resultsPage.totalEntries > 0) {
             console.log("And the value we actually want (artist id) is: " + responseData.resultsPage.results.artist[0].id);
+
             // Without another API call we can see the artist's id (for more API calls), his Songkick page, and how long he is on tour for
-
             retrieveSongkickData(responseData.resultsPage.results.artist[0].id);
-
-
-
-
         } else {
             handleSongkickError(); // If there isn't data, then we can treat it as an error
         }
@@ -334,13 +326,17 @@
         }
     }
 
+    /**
+     * ...
+     * @param {type} name - description
+     */
     function retrieveSongkickData(artistID) {
         console.log(artistID);
     }
 
 
-    /* ------------------------------- Musixmatch API ------------------------------- */
 
+    /* ------------------------------- Musixmatch API ------------------------------- */
 
 
 
@@ -376,31 +372,26 @@
 
     /**
      * Creates and returns a DOM object with the specified tag.
-     * @param {string} e - tag of the DOM object to create
+     * @param {string} el - tag of the DOM object to create
      * @returns {DOM object} a newly created DOM object with the given tag.
      */
     function ce(el) {
         return document.createElement(el);
     }
 
-
-
-
     /**
-     * Creates and returns a DOM object with the specified tag.
-     * @param {string} e - tag of the DOM object to create
-     * @returns {DOM object} a newly created DOM object with the given tag.
+     * Returns the value of an element with a specified id.
+     * @param {string} id - element ID
+     * @returns {string} value of the element with the specified id
      */
     function val(id) {
         return $(id).value;
     }
 
-
-
-
     /**
-     * Hides the given DOM element by adding the "hidden" class to the associated DOM.
-     * @param {string} id of a DOM element
+     * Toggles the class of an element specified by its id.
+     * @param {string} id - element ID
+     * @param {string} cl - class to be added or removed
      */
     function toggle(id, cl) {
         if ($(id).classList.contains(cl)) {
@@ -409,9 +400,6 @@
             $(id).classList.add(cl);
         }
     }
-
-
-
 
     /*
      * Helper function to return the response's result text if successful, otherwise

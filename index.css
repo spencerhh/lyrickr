@@ -121,6 +121,11 @@ pre, input, button {
   font-family: "Roboto Slab", serif;
 }
 
+a:hover, .artist:hover {
+  color: white;
+  cursor: pointer;
+}
+
 .content-child {
   font-size: .8em;
 }
